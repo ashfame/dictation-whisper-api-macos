@@ -1,6 +1,8 @@
-# Dictation using Whisper API
+# Dictation using Whisper API on MacOS
 
 By default, it uses the globe key on your Mac keyboard to trigger the dictation request.
+
+(double press to start, single press to stop)
 
 ## Setup
 
