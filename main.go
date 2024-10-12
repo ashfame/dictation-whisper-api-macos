@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -48,6 +49,19 @@ func main() {
 		fmt.Println("Error: OPENAI_API_KEY environment variable not set.")
 		os.Exit(1)
 	}
+
+	// Ensure microphone permissions are granted
+	err := requestMicrophonePermission()
+	if err != nil {
+		log.Fatal("Failed to get microphone permission:", err)
+	}
+
+	// Initialize the audio recorder
+	recorder, err := initializeAudioRecorder()
+	if err != nil {
+		log.Fatal("Failed to initialize audio recorder:", err)
+	}
+	defer recorder.Close()
 
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
@@ -306,4 +320,47 @@ func saveAudioToFile(samples []float32) (string, error) {
 	}
 
 	return fullPath, nil
+}
+
+func requestMicrophonePermission() error {
+	// Implement this function to request microphone permissions
+	// You may need to use a platform-specific library or system calls
+	// For example, on macOS, you might use the AVFoundation framework
+	return nil // Return nil if permission is granted, or an error if not
+}
+
+func initializeAudioRecorder() (*audio.Recorder, error) {
+	// Configure audio settings
+	config := audio.Config{
+		NumChannels: 1,
+		SampleRate:  16000,
+		BitDepth:    16,
+	}
+
+	// List available input devices
+	devices, err := audio.Devices()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list audio devices: %v", err)
+	}
+
+	// Find the default input device
+	var inputDevice *audio.Device
+	for _, device := range devices {
+		if device.IsDefault && device.IsInput {
+			inputDevice = device
+			break
+		}
+	}
+
+	if inputDevice == nil {
+		return nil, fmt.Errorf("no default input device found")
+	}
+
+	// Create the recorder
+	recorder, err := audio.NewRecorder(inputDevice, config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create audio recorder: %v", err)
+	}
+
+	return recorder, nil
 }
