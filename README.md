@@ -1,4 +1,4 @@
-# Dictation using Whisper API on MacOS
+# Dictation using Whisper API on MacOS (broken in Sequoia)
 
 By default, it uses the globe key on your Mac keyboard to trigger the dictation request.
 
